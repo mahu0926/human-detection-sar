@@ -1,0 +1,88 @@
+# Terrain-gated MoE config. All paths are relative to this folder.
+# Class order is fixed everywhere: 0 maritime, 1 urban, 2 vegetation.
+
+seed: 42
+input_size: 224
+backbone: mobilenet_v3_large   # mobilenet_v3_large | resnet18
+class_names: [maritime, urban, vegetation]
+
+train:
+  epochs: 25
+  batch_size: 32
+  lr: 0.0003
+  weight_decay: 0.01
+  min_lr: 0.000003
+  patience: 6                 # early stop on validation macro-F1
+  num_workers: 4              # set back to 0 if training hangs on macOS
+  pretrained: true
+
+gate:
+  weights: weights/gate_best.pt
+  confidence_threshold: 0.75  # top2 mode runs a second expert below this
+
+experts:
+  image_size: 640             # all three experts were trained at 640
+  conf: 0.25                  # run_moe.py display threshold
+  iou: 0.45
+  merge: nms                  # nms | wbf, used when top2 returns two experts
+  merge_iou: 0.50
+  fallback: yolov5s.pt        # run_moe.py only; eval_moe.py refuses to fall back
+  # Local YOLOv5 code shipped with the urban expert export. Loading from here
+  # needs no internet and pins the exact YOLOv5 version the experts were trained with.
+  repo: weights/nitc_expert_export/yolov5
+  weights:
+    maritime: weights/best_seabornsee.pt                  # Expert 1, Mahati (SeaDronesSee)
+    urban: weights/nitc_expert_export/weights/best.pt     # Expert 2, Adi (NTIC)
+    vegetation: weights/heridal_random_best.pt            # Expert 3 (Heridal)
+  # Optional comparison models (any YOLOv5 .pt), shown as extra rows in the results.
+  baselines: {}
+  # baselines:
+  #   Baseline: weights/visdrone_baseline.pt
+  #   Multi-domain: weights/multi_domain.pt
+
+eval:
+  conf: 0.001                 # YOLOv5 val.py settings for mAP
+  iou: 0.60
+  max_det: 300
+  vis_conf: 0.25              # boxes drawn in the report
+  person_class: 0             # class id of a person/swimmer in every label set
+  # Optional: point at the team's held-out test folders instead of the gate's
+  # test split. Labels are found by swapping images/ -> labels/.
+  test_sets: null
+  # test_sets:
+  #   maritime: path/to/maritime/images/test
+  #   urban: path/to/urban/images/test
+  #   vegetation: path/to/vegetation/images/test
+
+output:
+  eval_dir: runs/gate_eval
+  moe_dir: runs/moe
+
+datasets:
+  - name: seadronessee
+    root: seadronessee
+    class_id: 0
+    class_name: maritime
+    # Frames are sampled from video. Never randomly re-split.
+    preserve_splits: true
+    # No public test labels: upper half of val (by frame ID) becomes test.
+    carve_test_from_val: true
+  # NTIC: all 3 official splits come from the same 7 videos, so urban val/test
+  # scores are optimistic. Official splits are kept to stay aligned with the expert.
+  - name: ntic
+    root: NTIC_human_dataset_70_percent
+    class_id: 1
+    class_name: urban
+    preserve_splits: false
+  # Extra urban diversity for the gate only (NTIC is just 7 videos). Train split only.
+  # VisDrone2019-DET-val is kept out so it can still be used as a check.
+  - name: visdrone
+    root: extra_urban
+    class_id: 1
+    class_name: urban
+    preserve_splits: true
+  - name: heridal
+    root: Heridal Human Detection.v1i.yolov5pytorch
+    class_id: 2
+    class_name: vegetation
+    preserve_splits: false

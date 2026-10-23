@@ -1,0 +1,19 @@
+# NITC Human expert -- single-class (person) YOLOv5 dataset config.
+#
+# Split: the team's shared sar_person split for NITC (folder 'ntic' in sar_person.zip), unchanged,
+#   for MoE benchmarking consistency.
+#   NOTE: this split is frame-level random; ~47% of test images have a near-duplicate
+#   train frame from the same video clip (see README "Known issues"). Treat test metrics as optimistic.
+# Classes: labels were received already single-class (0 = person); every box is a human.
+#
+# 'path' is relative: YOLOv5 resolves relative paths against the yolov5/ repo root
+# (utils/general.py::check_dataset), so this works from any working directory as long
+# as the package layout (yolov5/ next to datasets/) is preserved.
+path: ../datasets/nitc
+train: images/train # 1277 images
+val: images/val # 365 images
+test: images/test # 182 images
+
+nc: 1
+names:
+  0: person

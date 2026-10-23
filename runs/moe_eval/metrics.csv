@@ -1,0 +1,36 @@
+method,terrain,mAP50,mAP50-95,precision,recall,f1,n_gt,n_pred
+Expert 1 (maritime) only,maritime,0.8324,0.3586,0.8685,0.8266,0.8470,3489,25393
+Expert 1 (maritime) only,All (pooled),0.4372,0.1850,0.8461,0.4039,0.5468,7214,56977
+Expert 1 (maritime) only,urban,0.0127,0.0044,0.0166,0.0842,0.0278,2755,13934
+Expert 1 (maritime) only,vegetation,0.0394,0.0130,0.1355,0.0969,0.1130,970,17650
+Expert 1 (maritime) only,Macro avg,0.2948,0.1253,0.3402,0.3359,0.3293,,
+Expert 2 (urban) only,maritime,0.0481,0.0186,0.1973,0.0409,0.0678,3489,5409
+Expert 2 (urban) only,All (pooled),0.4706,0.3680,0.9406,0.3924,0.5538,7214,16588
+Expert 2 (urban) only,urban,0.9935,0.8290,0.9859,0.9878,0.9868,2755,4823
+Expert 2 (urban) only,vegetation,0.0394,0.0112,0.1689,0.0897,0.1172,970,6356
+Expert 2 (urban) only,Macro avg,0.3604,0.2863,0.4507,0.3728,0.3906,,
+Expert 3 (vegetation) only,maritime,0.4511,0.1729,0.5887,0.4655,0.5199,3489,25721
+Expert 3 (vegetation) only,All (pooled),0.3561,0.1589,0.6108,0.3503,0.4453,7214,49860
+Expert 3 (vegetation) only,urban,0.0098,0.0022,0.0468,0.0214,0.0294,2755,17362
+Expert 3 (vegetation) only,vegetation,0.9298,0.5420,0.8733,0.8979,0.8855,970,6777
+Expert 3 (vegetation) only,Macro avg,0.4636,0.2390,0.5029,0.4616,0.4782,,
+MoE top-1,maritime,0.8324,0.3586,0.8685,0.8266,0.8470,3489,25393
+MoE top-1,All (pooled),0.9225,0.5954,0.9173,0.8923,0.9047,7214,36943
+MoE top-1,urban,0.9935,0.8290,0.9859,0.9878,0.9868,2755,4823
+MoE top-1,vegetation,0.9273,0.5418,0.8721,0.8938,0.8828,970,6727
+MoE top-1,Macro avg,0.9177,0.5765,0.9088,0.9027,0.9056,,
+MoE top-2,maritime,0.8324,0.3586,0.8685,0.8266,0.8470,3489,25393
+MoE top-2,All (pooled),0.9225,0.5954,0.9173,0.8923,0.9047,7214,36943
+MoE top-2,urban,0.9935,0.8290,0.9859,0.9878,0.9868,2755,4823
+MoE top-2,vegetation,0.9273,0.5418,0.8721,0.8938,0.8828,970,6727
+MoE top-2,Macro avg,0.9177,0.5765,0.9088,0.9027,0.9056,,
+All 3 experts + NMS,maritime,0.6884,0.2726,0.7015,0.8157,0.7543,3489,34186
+All 3 experts + NMS,All (pooled),0.8750,0.5528,0.8078,0.8757,0.8403,7214,80904
+All 3 experts + NMS,urban,0.9904,0.8093,0.9770,0.9684,0.9727,2755,25546
+All 3 experts + NMS,vegetation,0.9060,0.5201,0.8739,0.8577,0.8657,970,21172
+All 3 experts + NMS,Macro avg,0.8616,0.5340,0.8508,0.8806,0.8643,,
+Oracle routing,maritime,0.8324,0.3586,0.8685,0.8266,0.8470,3489,25393
+Oracle routing,All (pooled),0.9226,0.5954,0.9173,0.8930,0.9050,7214,36993
+Oracle routing,urban,0.9935,0.8290,0.9859,0.9878,0.9868,2755,4823
+Oracle routing,vegetation,0.9298,0.5420,0.8733,0.8979,0.8855,970,6777
+Oracle routing,Macro avg,0.9186,0.5765,0.9092,0.9041,0.9064,,

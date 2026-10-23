@@ -1,0 +1,21 @@
+# Datasets and derived data (too large for GitHub; download separately, see README)
+seadronessee/
+NTIC_human_dataset_70_percent/
+Heridal Human Detection.v1i.yolov5pytorch/
+extra_urban/
+ood/
+gate_cache/
+*.zip
+*.tar
+
+# Regenerable outputs (the HTML report, charts and example images in runs/moe_eval are kept)
+runs/moe_eval/predictions.pkl
+runs/moe/
+runs/ood_review/
+
+__pycache__/
+.DS_Store
+.ipynb_checkpoints/
+
+# Stray downloads such as stock yolov5s.pt (everything in weights/ is committed)
+/*.pt
