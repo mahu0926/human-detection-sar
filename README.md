@@ -11,7 +11,9 @@ A small CNN gate looks at each drone image, decides its terrain (maritime, urban
 | 3 · Vegetation | VisDrone → Heridal | `weights/heridal_random_best.pt` |
 | Gate | MobileNetV3-Large, 3 classes | `weights/gate_best.pt` |
 
-## Results (gate test split)
+## Results
+
+End-to-end person detection (mAP@0.5) on held-out test images: 774 maritime, 365 urban, 157 vegetation.
 
 | Method | Maritime | Urban | Vegetation | Macro mAP@0.5 |
 |---|---|---|---|---|
