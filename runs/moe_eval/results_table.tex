@@ -1,0 +1,17 @@
+\begin{tabular}{llcccc}
+\toprule
+Test set & Model & Precision & Recall & mAP@50 & mAP@50:95 \\
+\midrule
+Heridal (vegetation) & All 3 experts + NMS & \textbf{0.874} & 0.858 & 0.906 & 0.520 \\
+157 img, 970 persons & MoE (ours) & 0.872 & \textbf{0.894} & \textbf{0.927} & \textbf{0.542} \\
+\midrule
+SeaDronesSee (maritime) & All 3 experts + NMS & 0.702 & 0.816 & 0.688 & 0.273 \\
+774 img, 3,489 persons & MoE (ours) & \textbf{0.869} & \textbf{0.827} & \textbf{0.832} & \textbf{0.359} \\
+\midrule
+NTIC (urban) & All 3 experts + NMS & 0.977 & 0.968 & 0.990 & 0.809 \\
+365 img, 2,755 persons & MoE (ours) & \textbf{0.986} & \textbf{0.988} & \textbf{0.993} & \textbf{0.829} \\
+\midrule
+Mean over domains & All 3 experts + NMS & & & 0.862 & 0.534 \\
+ & MoE (ours) & & & \textbf{0.918} & \textbf{0.576} \\
+\bottomrule
+\end{tabular}

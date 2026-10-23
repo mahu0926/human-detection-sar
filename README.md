@@ -18,7 +18,6 @@ A small CNN gate looks at each drone image, decides its terrain (maritime, urban
 | Best single expert | 0.451 | 0.010 | 0.930 | 0.464 |
 | All 3 experts + NMS | 0.688 | 0.990 | 0.906 | 0.862 |
 | **MoE (gate + router)** | **0.832** | **0.993** | **0.927** | **0.918** |
-| Oracle routing | 0.832 | 0.993 | 0.930 | 0.919 |
 
 Gate routing accuracy: 99.8%. Full report with charts and annotated examples: [`runs/moe_eval/report.html`](runs/moe_eval/report.html) (download or clone, then open it in a browser).
 

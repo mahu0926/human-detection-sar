@@ -29,8 +29,3 @@ All 3 experts + NMS,All (pooled),0.8750,0.5528,0.8078,0.8757,0.8403,7214,80904
 All 3 experts + NMS,urban,0.9904,0.8093,0.9770,0.9684,0.9727,2755,25546
 All 3 experts + NMS,vegetation,0.9060,0.5201,0.8739,0.8577,0.8657,970,21172
 All 3 experts + NMS,Macro avg,0.8616,0.5340,0.8508,0.8806,0.8643,,
-Oracle routing,maritime,0.8324,0.3586,0.8685,0.8266,0.8470,3489,25393
-Oracle routing,All (pooled),0.9226,0.5954,0.9173,0.8930,0.9050,7214,36993
-Oracle routing,urban,0.9935,0.8290,0.9859,0.9878,0.9868,2755,4823
-Oracle routing,vegetation,0.9298,0.5420,0.8733,0.8979,0.8855,970,6777
-Oracle routing,Macro avg,0.9186,0.5765,0.9092,0.9041,0.9064,,

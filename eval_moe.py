@@ -10,8 +10,6 @@ once. Raw predictions are cached, then these methods are scored from the cache
   MoE top-1           the gate picks one expert
   MoE top-2           the gate picks one, plus the runner-up when max p < threshold
   All 3 + NMS         every expert on every image, boxes merged (brute-force ensemble)
-  Oracle routing      the expert that matches the image's true terrain
-                      (upper bound for any gate)
 
 Metrics follow YOLOv5 val.py: mAP@0.5, mAP@0.5:0.95 (101-point interpolation),
 and precision/recall at the max-F1 confidence. Only the person class is scored
@@ -60,7 +58,6 @@ METHOD_COLORS = {
     "MoE top-1": "#a78bfa",
     "MoE top-2": "#7c3aed",
     "All 3 experts + NMS": "#0ea5e9",
-    "Oracle routing": "#111827",
 }
 TP_COLOR, FP_COLOR, FN_COLOR = (34, 197, 94), (239, 68, 68), (250, 204, 21)
 
@@ -272,10 +269,6 @@ def build_methods(names: list[str], model_keys: list[str], threshold: float, mer
         "All 3 experts + NMS",
         lambda rec: (combine([rec["preds"][n] for n in names], merge_iou, max_det), list(range(len(names)))),
     )
-    methods["Oracle routing"] = (
-        "Oracle routing",
-        lambda rec: (rec["preds"][rec["terrain"]], [names.index(rec["terrain"])]),
-    )
     return methods
 
 
@@ -485,7 +478,7 @@ def save_charts(metrics: dict, routing: dict, names: list[str], out: Path) -> li
             values = [metrics[label].get(g, {}).get(key, 0.0) for g in groups]
             color = next((c for k, c in METHOD_COLORS.items() if f"({k})" in label or label.startswith(k)), "#9ca3af")
             ax.bar(np.arange(len(groups)) + (i - (len(labels) - 1) / 2) * width, values, width, label=label, color=color,
-                   edgecolor="white", linewidth=0.6, hatch="//" if label == "Oracle routing" else None)
+                   edgecolor="white", linewidth=0.6)
         ax.set_xticks(np.arange(len(groups)), groups)
         ax.set_ylim(0, 1)
         ax.set_title(title)
@@ -582,7 +575,7 @@ def write_report(out: Path, cache: dict, metrics: dict, routing: dict, speed: di
     best = {}
     for col in cols:
         for key in ("map50", "map"):
-            vals = [(metrics[m].get(col, {}).get(key, -1), m) for m in metrics if m != "Oracle routing"]
+            vals = [(metrics[m].get(col, {}).get(key, -1), m) for m in metrics]
             best[(col, key)] = max(vals)[1] if vals else None
 
     def row(label):
@@ -596,7 +589,7 @@ def write_report(out: Path, cache: dict, metrics: dict, routing: dict, speed: di
                 cells.append(f"<td class='pr'>{fmt(m.get('p', 0))} / {fmt(m.get('r', 0))}</td>")
             else:
                 cells.append(f"<td class='pr'>{fmt(m.get('p', 0))} / {fmt(m.get('r', 0))}</td>")
-        tr = " class='oracle'" if label == "Oracle routing" else (" class='moe'" if label.startswith("MoE") else "")
+        tr = " class='moe'" if label.startswith("MoE") else ""
         return f"<tr{tr}>" + "".join(cells) + "</tr>"
 
     head1 = "<tr><th></th>" + "".join(f"<th colspan='3' class='grp'>{html.escape(c)}</th>" for c in cols) + "</tr>"
@@ -608,13 +601,12 @@ def write_report(out: Path, cache: dict, metrics: dict, routing: dict, speed: di
 
     moe = metrics["MoE top-2"]["Macro avg"]["map50"]
     moe1 = metrics["MoE top-1"]["Macro avg"]["map50"]
-    oracle = metrics["Oracle routing"]["Macro avg"]["map50"]
-    singles = {m: v["Macro avg"]["map50"] for m, v in metrics.items() if not m.startswith(("MoE", "All 3", "Oracle"))}
+    singles = {m: v["Macro avg"]["map50"] for m, v in metrics.items() if not m.startswith(("MoE", "All 3"))}
     best_single = max(singles, key=singles.get)
     cards = [
         ("MoE top-2 · macro mAP@0.5", fmt(moe), f"top-1: {fmt(moe1)}"),
         ("Best single model", fmt(singles[best_single]), html.escape(best_single)),
-        ("Oracle routing (upper bound)", fmt(oracle), f"gap to MoE: {oracle - moe:+.3f}"),
+        ("All 3 experts + NMS", fmt(metrics["All 3 experts + NMS"]["Macro avg"]["map50"]), "3x the compute of MoE"),
         ("Gate routing accuracy", f"{routing['accuracy']:.1%}", f"top-2 triggered on {routing['top2_rate_all']:.1%} of images"),
     ]
     cards_html = "".join(
@@ -659,7 +651,7 @@ table{{border-collapse:collapse;width:100%;font-size:13.5px}}
 th,td{{padding:7px 10px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}}
 th.m{{text-align:left;font-weight:600}} th.grp{{background:var(--soft)}}
 td.best{{font-weight:700;color:var(--acc)}} td.pr{{color:var(--mut)}}
-tr.moe{{background:#faf5ff}} table.paper th.m{{vertical-align:top}} table.paper td.m{{text-align:left}} .muted{{color:var(--mut);font-weight:400;font-size:12.5px}} tr.oracle{{color:var(--mut);font-style:italic}} tr.muted td,tr.muted th{{color:var(--mut);font-size:12.5px}}
+tr.moe{{background:#faf5ff}} table.paper th.m{{vertical-align:top}} table.paper td.m{{text-align:left}} .muted{{color:var(--mut);font-weight:400;font-size:12.5px}} tr.muted td,tr.muted th{{color:var(--mut);font-size:12.5px}}
 img.chart{{max-width:100%;border:1px solid var(--line);border-radius:12px;margin-top:8px}}
 .two{{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}} .two>*{{min-width:0}}
 .tabs{{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 14px}}
@@ -683,7 +675,7 @@ ul.notes li{{margin:4px 0}} code{{background:var(--soft);padding:1px 5px;border-
 <div class="scroll">{paper_table}</div>
 
 <h2>All methods (person class)</h2>
-<p class="sub">Bold purple = best non-oracle value in that column. P / R are at the max-F1 confidence, as in YOLOv5 val.py. Macro avg = mean over the three terrains; All (pooled) = every image together (dominated by the largest test set).</p>
+<p class="sub">Bold purple = best value in that column. P / R are at the max-F1 confidence, as in YOLOv5 val.py. Macro avg = mean over the three terrains; All (pooled) = every image together (dominated by the largest test set).</p>
 <div class="scroll">{table}</div>
 <img class="chart" src="charts/{charts[0]}" alt="mAP by terrain">
 
@@ -706,7 +698,6 @@ ul.notes li{{margin:4px 0}} code{{background:var(--soft);padding:1px 5px;border-
 <li>Test images per terrain: {', '.join(f'{k} {v}' for k, v in test_counts.items())}.</li>
 <li>Every expert sees the original full-resolution image, resized to {cache['imgsz']}px by YOLOv5. The gate sees a 224px crop.</li>
 <li>If a test image was in an expert's training split, that expert's numbers are optimistic. Check that the test folders match each expert's held-out split.</li>
-<li>Oracle routing is the best any gate could do with these experts. The gap between MoE and oracle is the cost of routing mistakes.</li>
 <li>All 3 experts + NMS runs every expert on every image (3× the compute). If MoE matches or beats it, routing is worth it.</li>
 </ul>
 </main>
