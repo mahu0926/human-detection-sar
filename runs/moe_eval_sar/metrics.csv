@@ -1,0 +1,31 @@
+method,terrain,mAP50,mAP50-95,precision,recall,f1,n_gt,n_pred
+Expert 1 (maritime) only,maritime,0.8064,0.3715,0.8337,0.8086,0.8210,4372,30408
+Expert 1 (maritime) only,All (pooled),0.6013,0.2741,0.8103,0.5870,0.6808,6027,52149
+Expert 1 (maritime) only,urban,0.0141,0.0044,0.0598,0.0271,0.0373,1367,6790
+Expert 1 (maritime) only,vegetation,0.0302,0.0090,0.1031,0.0972,0.1001,288,14951
+Expert 1 (maritime) only,Macro avg,0.2836,0.1283,0.3322,0.3109,0.3194,,
+Expert 2 (urban) only,maritime,0.0241,0.0105,0.0349,0.0316,0.0331,4372,3955
+Expert 2 (urban) only,All (pooled),0.2603,0.2005,0.9018,0.2283,0.3644,6027,23974
+Expert 2 (urban) only,urban,0.9915,0.8002,0.9804,0.9873,0.9838,1367,2296
+Expert 2 (urban) only,vegetation,0.0035,0.0010,0.0267,0.0312,0.0288,288,17723
+Expert 2 (urban) only,Macro avg,0.3397,0.2706,0.3473,0.3500,0.3486,,
+Expert 3 (vegetation) only,maritime,0.1963,0.0644,0.3536,0.2724,0.3078,4372,33787
+Expert 3 (vegetation) only,All (pooled),0.1834,0.0650,0.3779,0.2313,0.2870,6027,45134
+Expert 3 (vegetation) only,urban,0.0062,0.0016,0.0651,0.0183,0.0286,1367,8463
+Expert 3 (vegetation) only,vegetation,0.8007,0.3692,0.8030,0.7812,0.7920,288,2884
+Expert 3 (vegetation) only,Macro avg,0.3344,0.1451,0.4072,0.3573,0.3761,,
+MoE top-1,maritime,0.8064,0.3715,0.8337,0.8086,0.8210,4372,30408
+MoE top-1,All (pooled),0.8588,0.4875,0.8786,0.8289,0.8530,6027,35588
+MoE top-1,urban,0.9915,0.8002,0.9804,0.9873,0.9838,1367,2296
+MoE top-1,vegetation,0.8007,0.3692,0.8030,0.7812,0.7920,288,2884
+MoE top-1,Macro avg,0.8662,0.5136,0.8724,0.8590,0.8656,,
+MoE top-2,maritime,0.8064,0.3715,0.8337,0.8086,0.8210,4372,30408
+MoE top-2,All (pooled),0.8588,0.4875,0.8786,0.8289,0.8530,6027,35588
+MoE top-2,urban,0.9915,0.8002,0.9804,0.9873,0.9838,1367,2296
+MoE top-2,vegetation,0.8007,0.3692,0.8030,0.7812,0.7920,288,2884
+MoE top-2,Macro avg,0.8662,0.5136,0.8724,0.8590,0.8656,,
+All 3 experts + NMS,maritime,0.5760,0.2352,0.6358,0.7477,0.6872,4372,45018
+All 3 experts + NMS,All (pooled),0.7275,0.4037,0.7052,0.7787,0.7401,6027,81047
+All 3 experts + NMS,urban,0.9850,0.7764,0.9708,0.9561,0.9634,1367,12558
+All 3 experts + NMS,vegetation,0.7095,0.3278,0.7816,0.6701,0.7216,288,23471
+All 3 experts + NMS,Macro avg,0.7568,0.4465,0.7961,0.7913,0.7907,,

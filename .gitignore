@@ -5,11 +5,12 @@ Heridal Human Detection.v1i.yolov5pytorch/
 extra_urban/
 ood/
 gate_cache/
+test_images/
 *.zip
 *.tar
 
-# Regenerable outputs (the HTML report, charts and example images in runs/moe_eval are kept)
-runs/moe_eval/predictions.pkl
+# Regenerable outputs (HTML reports, charts and example images in runs/ are kept)
+runs/*/predictions.pkl
 runs/moe/
 runs/ood_review/
 

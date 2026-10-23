@@ -13,15 +13,32 @@ A small CNN gate looks at each drone image, decides its terrain (maritime, urban
 
 ## Results
 
-End-to-end person detection (mAP@0.5) on held-out test images: 774 maritime, 365 urban, 157 vegetation.
+End-to-end person detection on the team's shared test sets (`test_images/`), the same images used for the Baseline and Multi-domain models.
 
-| Method | Maritime | Urban | Vegetation | Macro mAP@0.5 |
-|---|---|---|---|---|
-| Best single expert | 0.451 | 0.010 | 0.930 | 0.464 |
-| All 3 experts + NMS | 0.688 | 0.990 | 0.906 | 0.862 |
-| **MoE (gate + router)** | **0.832** | **0.993** | **0.927** | **0.918** |
+| Test set | Model | Precision | Recall | mAP@50 | mAP@50:95 |
+|---|---|---|---|---|---|
+| Heridal (vegetation)<br>159 img, 288 persons | Baseline | 0.826 | 0.740 | 0.807 | 0.415 |
+| | Multi-domain (downsampled) | **0.842** | 0.757 | 0.828 | 0.404 |
+| | Multi-domain (weighted) | 0.834 | **0.788** | **0.843** | **0.433** |
+| | **MoE (ours)** | 0.803 | 0.781 | 0.801 | 0.369 |
+| SeaDronesSee (maritime)<br>1,047 img, 4,372 persons | Baseline | 0.330 | 0.259 | 0.187 | 0.064 |
+| | Multi-domain (downsampled) | 0.808 | 0.762 | 0.760 | 0.320 |
+| | Multi-domain (weighted) | **0.876** | **0.848** | **0.844** | **0.408** |
+| | **MoE (ours)** | 0.834 | 0.809 | 0.806 | 0.371 |
+| NITC (urban)<br>182 img, 1,367 persons | Baseline | 0.109 | 0.040 | 0.024 | 0.005 |
+| | Multi-domain (downsampled) | **0.985** | **0.990** | **0.992** | **0.814** |
+| | Multi-domain (weighted) | 0.980 | 0.980 | 0.991 | 0.806 |
+| | **MoE (ours)** | 0.980 | 0.987 | **0.992** | 0.800 |
+| Mean over domains | Baseline | | | 0.339 | 0.161 |
+| | Multi-domain (downsampled) | | | 0.860 | 0.513 |
+| | Multi-domain (weighted) | | | **0.893** | **0.549** |
+| | **MoE (ours)** | | | 0.866 | 0.514 |
 
-Gate routing accuracy: 99.8%. Full report with charts and annotated examples: [`runs/moe_eval/report.html`](runs/moe_eval/report.html) (download or clone, then open it in a browser).
+- The gate routes **100%** of the 1,388 test images to the correct expert.
+- MoE vs. Baseline: mean mAP@50 0.339 → 0.866. MoE matches downsampled multi-domain fine-tuning (0.866 vs 0.860) and beats it on maritime (+0.046), but multi-domain with weighted sampling is best overall (0.893).
+- Routing matters: running all 3 experts on every image and merging with NMS gives only 0.757 mean mAP@50 (3x the compute); each expert alone scores 0.28–0.34.
+
+Full report with charts and annotated examples: [`runs/moe_eval_sar/report.html`](runs/moe_eval_sar/report.html) (download or clone, then open it in a browser). Baseline and Multi-domain numbers are from the team's YOLOv5 `val.py` runs.
 
 ## Setup
 
@@ -38,6 +55,7 @@ seadronessee/                               # maritime (Hugging Face: dronefreak
 NTIC_human_dataset_70_percent/              # urban
 Heridal Human Detection.v1i.yolov5pytorch/  # vegetation (Roboflow export)
 extra_urban/VisDrone2019-DET-train/         # extra urban images, gate training only
+test_images/                                # team's shared test sets (sar_person_*_test/)
 ```
 
 ## Run
@@ -45,8 +63,8 @@ extra_urban/VisDrone2019-DET-train/         # extra urban images, gate training 
 The trained gate and expert weights are already in `weights/`. To run the MoE:
 
 ```bash
-python eval_moe.py                         # full evaluation (~5 min on an M-series Mac)
-open runs/moe_eval/report.html             # metrics, charts, annotated examples
+python eval_moe.py --output runs/moe_eval_sar   # evaluate on test_images/ (~5 min on an M-series Mac)
+open runs/moe_eval_sar/report.html               # metrics, charts, annotated examples
 
 python run_moe.py --source <image or folder> --save   # detect on any images -> runs/moe/
 ```
@@ -59,7 +77,7 @@ python train_gate.py                       # -> weights/gate_best.pt
 python eval_gate.py --split test           # accuracy + confusion matrix -> runs/gate_eval/
 ```
 
-`eval_moe.py` also writes `runs/moe_eval/results_table.md` and `results_table.tex`: per-test-set Precision / Recall / mAP@50 / mAP@50:95 plus a mean-over-domains row, in the same layout as the team table. To add the team's Baseline and Multi-domain models as rows, list their weights in `config.yaml`:
+`eval_moe.py` also writes `results_table.md` and `results_table.tex`: per-test-set Precision / Recall / mAP@50 / mAP@50:95 plus a mean-over-domains row, in the same layout as the team table. To add the team's Baseline and Multi-domain models as rows, list their weights in `config.yaml`:
 
 ```yaml
 experts:
@@ -88,7 +106,7 @@ weights/             gate + expert checkpoints (YOLOv5 code in weights/nitc_expe
 
 ## Notes
 
-- Splits: SeaDronesSee has no public test labels, so its val set is split by frame ID (lower half val, upper half test). NTIC and Heridal use their official splits.
-- NTIC splits share source videos, and the vegetation expert used its own random Heridal split, so urban and vegetation scores may be optimistic. Set `eval.test_sets` in `config.yaml` to evaluate on other held-out folders.
+- Test sets: `eval.test_sets` in `config.yaml` points at the team's shared split in `test_images/`. The gate's own training/validation splits (official NTIC and Heridal splits, SeaDronesSee val split by frame ID) are separate; `runs/moe_eval/` holds an earlier evaluation on those.
+- These are in-domain results, and NTIC test frames come from the same videos as its training frames, so urban scores are optimistic.
 - Some SeaDronesSee labels are offset by a few pixels, which lowers maritime mAP even where detections are correct.
 - `ood_check.py --source <folder> --expect urban` routes outside images to check the gate learned terrain, not dataset cues (VisDrone val: 100% urban).

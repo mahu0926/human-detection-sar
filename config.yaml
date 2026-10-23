@@ -48,7 +48,10 @@ eval:
   person_class: 0             # class id of a person/swimmer in every label set
   # Optional: point at the team's held-out test folders instead of the gate's
   # test split. Labels are found by swapping images/ -> labels/.
-  test_sets: null
+  test_sets:                  # team's shared sar_person test split (same as the team results table)
+    maritime: test_images/sar_person_seadronessee_test/images/seadronessee/test
+    urban: test_images/sar_person_ntic_test/images/ntic/test
+    vegetation: test_images/sar_person_heridal_test/images/heridal/test
   # test_sets:
   #   maritime: path/to/maritime/images/test
   #   urban: path/to/urban/images/test
